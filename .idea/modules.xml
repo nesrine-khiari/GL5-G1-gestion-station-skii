@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/gestion-station-skii.iml" filepath="$PROJECT_DIR$/.idea/gestion-station-skii.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GL5-G1-gestion-station-skii.iml" filepath="$PROJECT_DIR$/.idea/GL5-G1-gestion-station-skii.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gestion-station-skii/gestion-station-skii.iml" filepath="$PROJECT_DIR$/gestion-station-skii/gestion-station-skii.iml" />
     </modules>
   </component>
 </project>
