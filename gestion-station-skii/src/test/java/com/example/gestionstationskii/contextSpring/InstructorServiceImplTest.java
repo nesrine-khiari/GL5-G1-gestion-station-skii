@@ -1,29 +1,33 @@
 package com.example.gestionstationskii.contextSpring;
 
-import com.example.gestionstationskii.services.InstructorServicesImpl;
-
 import com.example.gestionstationskii.entities.Course;
 import com.example.gestionstationskii.entities.Instructor;
 import com.example.gestionstationskii.repositories.ICourseRepository;
 import com.example.gestionstationskii.repositories.IInstructorRepository;
+import com.example.gestionstationskii.services.InstructorServicesImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@Transactional  // rolls back after each test
 class InstructorServicesImplTest {
 
-    @Mock
+    @Autowired
     private IInstructorRepository instructorRepository;
 
-    @Mock
+    @Autowired
     private ICourseRepository courseRepository;
 
-    @InjectMocks
+    @Autowired
     private InstructorServicesImpl instructorServices;
 
     private Instructor instructor;
@@ -31,121 +35,80 @@ class InstructorServicesImplTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Clean database before each test
+        instructorRepository.deleteAll();
+        courseRepository.deleteAll();
 
         instructor = new Instructor();
-        instructor.setNumInstructor(1L);
         instructor.setFirstName("John");
         instructor.setLastName("Doe");
         instructor.setDateOfHire(LocalDate.of(2022, 1, 1));
 
         course = new Course();
-        course.setNumCourse(100L);
         course.setLevel(1);
-        course.setTypeCourse(null);
-        course.setSupport(null);
         course.setPrice(120.0f);
         course.setTimeSlot(3);
+
+        // Save course first (needed for assignment)
+        courseRepository.save(course);
     }
 
     @Test
     void testAddInstructor() {
-        // Arrange
-        when(instructorRepository.save(any(Instructor.class))).thenReturn(instructor);
+        Instructor saved = instructorServices.addInstructor(instructor);
 
-        // Act
-        Instructor savedInstructor = instructorServices.addInstructor(instructor);
-
-        // Assert
-        assertThat(savedInstructor).isNotNull();
-        assertThat(savedInstructor.getFirstName()).isEqualTo("John");
-        verify(instructorRepository, times(1)).save(instructor);
+        assertThat(saved.getNumInstructor()).isNotNull();
+        assertThat(saved.getFirstName()).isEqualTo("John");
+        assertThat(instructorRepository.findAll()).hasSize(1);
     }
 
     @Test
     void testRetrieveAllInstructors() {
-        // Arrange
-        List<Instructor> instructors = List.of(instructor);
-        when(instructorRepository.findAll()).thenReturn(instructors);
+        instructorServices.addInstructor(instructor);
 
-        // Act
-        List<Instructor> result = instructorServices.retrieveAllInstructors();
-
-        // Assert
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getLastName()).isEqualTo("Doe");
-        verify(instructorRepository, times(1)).findAll();
+        List<Instructor> all = instructorServices.retrieveAllInstructors();
+        assertThat(all).hasSize(1);
+        assertThat(all.get(0).getLastName()).isEqualTo("Doe");
     }
 
     @Test
     void testUpdateInstructor() {
-        // Arrange
-        when(instructorRepository.save(any(Instructor.class))).thenReturn(instructor);
+        Instructor saved = instructorServices.addInstructor(instructor);
+        saved.setLastName("Smith");
 
-        // Act
-        Instructor updated = instructorServices.updateInstructor(instructor);
+        Instructor updated = instructorServices.updateInstructor(saved);
 
-        // Assert
-        assertThat(updated).isNotNull();
-        assertThat(updated.getNumInstructor()).isEqualTo(1L);
-        verify(instructorRepository, times(1)).save(instructor);
+        assertThat(updated.getLastName()).isEqualTo("Smith");
     }
 
     @Test
     void testRetrieveInstructor_Found() {
-        // Arrange
-        when(instructorRepository.findById(1L)).thenReturn(Optional.of(instructor));
+        Instructor saved = instructorServices.addInstructor(instructor);
 
-        // Act
-        Instructor found = instructorServices.retrieveInstructor(1L);
-
-        // Assert
+        Instructor found = instructorServices.retrieveInstructor(saved.getNumInstructor());
         assertThat(found).isNotNull();
         assertThat(found.getFirstName()).isEqualTo("John");
-        verify(instructorRepository, times(1)).findById(1L);
     }
 
     @Test
     void testRetrieveInstructor_NotFound() {
-        // Arrange
-        when(instructorRepository.findById(999L)).thenReturn(Optional.empty());
-
-        // Act
-        Instructor result = instructorServices.retrieveInstructor(999L);
-
-        // Assert
-        assertThat(result).isNull();
-        verify(instructorRepository, times(1)).findById(999L);
+        Instructor found = instructorServices.retrieveInstructor(999L);
+        assertThat(found).isNull();
     }
 
     @Test
     void testAddInstructorAndAssignToCourse_CourseFound() {
-        // Arrange
-        when(courseRepository.findById(100L)).thenReturn(Optional.of(course));
-        when(instructorRepository.save(any(Instructor.class))).thenReturn(instructor);
+        Instructor saved = instructorServices.addInstructorAndAssignToCourse(instructor, course.getNumCourse());
 
-        // Act
-        Instructor result = instructorServices.addInstructorAndAssignToCourse(instructor, 100L);
-
-        // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.getCourses()).isNotEmpty();
-        assertThat(result.getCourses().iterator().next().getNumCourse()).isEqualTo(100L);
-        verify(courseRepository, times(1)).findById(100L);
-        verify(instructorRepository, times(1)).save(instructor);
+        assertThat(saved).isNotNull();
+        assertThat(saved.getCourses()).isNotEmpty();
+        assertThat(saved.getCourses().iterator().next().getNumCourse()).isEqualTo(course.getNumCourse());
     }
 
     @Test
     void testAddInstructorAndAssignToCourse_CourseNotFound() {
-        // Arrange
-        when(courseRepository.findById(200L)).thenReturn(Optional.empty());
+        Instructor saved = instructorServices.addInstructorAndAssignToCourse(instructor, 999L);
 
-        // Act
-        Instructor result = instructorServices.addInstructorAndAssignToCourse(instructor, 200L);
-
-        // Assert
-        assertThat(result).isNull();
-        verify(courseRepository, times(1)).findById(200L);
-        verify(instructorRepository, never()).save(any());
+        assertThat(saved).isNull();
     }
 }
