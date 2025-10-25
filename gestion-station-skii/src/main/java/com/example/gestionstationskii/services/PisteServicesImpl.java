@@ -47,4 +47,9 @@ public class PisteServicesImpl implements IPisteServices {
         }
         return piste;
     }
+
+    @Override
+    public Piste updatePiste(Piste piste) {
+        return pisteRepository.save(piste); // JPA gère automatiquement l'update si l'ID existe
+    }
 }
