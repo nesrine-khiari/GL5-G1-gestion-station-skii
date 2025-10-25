@@ -1,7 +1,6 @@
 package com.example.gestionstationskii.services;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import com.example.gestionstationskii.entities.*;
@@ -11,13 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-@Slf4j
 @AllArgsConstructor
 @Service
-public class SubscriptionServicesImpl implements ISubscriptionServices{
+public class SubscriptionServicesImpl implements ISubscriptionServices {
 
     private ISubscriptionRepository subscriptionRepository;
-
     private ISkierRepository skierRepository;
 
     @Override
@@ -57,21 +54,24 @@ public class SubscriptionServicesImpl implements ISubscriptionServices{
     }
 
     @Override
-    @Scheduled(cron = "*/30 * * * * *") /* Cron expression to run a job every 30 secondes */
+    @Scheduled(cron = "/30 * * * * *") // Cron expression to run a job every 30 seconds */
     public void retrieveSubscriptions() {
-        for (Subscription sub: subscriptionRepository.findDistinctOrderByEndDateAsc()) {
-            Skier   aSkier = skierRepository.findBySubscription(sub);
-            log.info(sub.getNumSub().toString() + " | "+ sub.getEndDate().toString()
-                    + " | "+ aSkier.getFirstName() + " " + aSkier.getLastName());
+        for (Subscription sub : subscriptionRepository.findDistinctOrderByEndDateAsc()) {
+            Skier aSkier = skierRepository.findBySubscription(sub);
+            System.out.println(
+                    sub.getNumSub() + " | " +
+                            sub.getEndDate() + " | " +
+                            aSkier.getFirstName() + " " + aSkier.getLastName()
+            );
         }
     }
 
-   // @Scheduled(cron = "* 0 9 1 * *") /* Cron expression to run a job every month at 9am */
-    @Scheduled(cron = "*/30 * * * * *") /* Cron expression to run a job every 30 secondes */
+    @Scheduled(cron = "/30 * * * * *") //Cron expression to run a job every 30 seconds */
     public void showMonthlyRecurringRevenue() {
         Float revenue = subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.MONTHLY)
-                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL)/6
-                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL)/12;
-        log.info("Monthly Revenue = " + revenue);
+                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.SEMESTRIEL) / 6
+                + subscriptionRepository.recurringRevenueByTypeSubEquals(TypeSubscription.ANNUAL) / 12;
+
+        System.out.println("Monthly Revenue = " + revenue);
     }
 }
