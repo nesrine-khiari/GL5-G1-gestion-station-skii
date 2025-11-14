@@ -93,19 +93,26 @@
 
 <build>
     <resources>
+        <!-- Filter only text files -->
         <resource>
             <directory>src/main/resources</directory>
             <includes>
                 <include>**/*.properties</include>
                 <include>**/*.txt</include>
+                <include>**/*.xml</include>
+                <include>**/*.yml</include>
             </includes>
             <filtering>true</filtering>
         </resource>
+
+        <!-- Copy everything else without filtering -->
         <resource>
             <directory>src/main/resources</directory>
             <excludes>
                 <exclude>**/*.properties</exclude>
                 <exclude>**/*.txt</exclude>
+                <exclude>**/*.xml</exclude>
+                <exclude>**/*.yml</exclude>
             </excludes>
             <filtering>false</filtering>
         </resource>
