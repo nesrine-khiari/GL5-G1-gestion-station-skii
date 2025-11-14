@@ -1,5 +1,5 @@
 # Use OpenJDK 8 base image
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jdk-slim
 
 # Set working directory
 WORKDIR /app
