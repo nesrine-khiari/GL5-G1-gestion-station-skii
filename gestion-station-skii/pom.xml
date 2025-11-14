@@ -2,24 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 <modelVersion>4.0.0</modelVersion>
-<resources>
-    <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-            <include>**/*.properties</include>
-            <include>**/*.txt</include>
-        </includes>
-        <filtering>true</filtering>
-    </resource>
-    <resource>
-        <directory>src/main/resources</directory>
-        <excludes>
-            <exclude>**/*.properties</exclude>
-            <exclude>**/*.txt</exclude>
-        </excludes>
-        <filtering>false</filtering>
-    </resource>
-</resources>
 
 
 <parent>
@@ -110,6 +92,25 @@
 </dependencies>
 
 <build>
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.properties</include>
+                <include>**/*.txt</include>
+            </includes>
+            <filtering>true</filtering>
+        </resource>
+        <resource>
+            <directory>src/main/resources</directory>
+            <excludes>
+                <exclude>**/*.properties</exclude>
+                <exclude>**/*.txt</exclude>
+            </excludes>
+            <filtering>false</filtering>
+        </resource>
+    </resources>
+
     <plugins>
         <plugin>
             <groupId>org.springframework.boot</groupId>
