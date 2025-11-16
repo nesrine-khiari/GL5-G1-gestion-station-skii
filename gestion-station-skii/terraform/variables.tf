@@ -1,59 +1,39 @@
-# ------------------------------
-# AWS Region
-# ------------------------------
+
+
+
 variable "aws_region" {
-  description = "The AWS region where the cluster and VPC are located"
+  description = "La région AWS"
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-1"  # Région mise à jour
 }
 
-# ------------------------------
-# Cluster Name
-# ------------------------------
 variable "cluster_name" {
-  description = "Name of the EKS cluster"
+  description = "Nom du cluster EKS"
   type        = string
-  default     = "mykubernetes"
+  default     = "mykubernetes"  # Nom du cluster mis à jour
 }
 
-# ------------------------------
-# VPC CIDR
-# ------------------------------
-variable "vpc_cidr" {
-  description = "CIDR block of the VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-# ------------------------------
-# Node Group Configuration
-# ------------------------------
-variable "capacity_type" {
-  description = "Type of capacity for the node group (ON_DEMAND or SPOT)"
-  type        = string
-  default     = "ON_DEMAND"
-}
-
-variable "instance_types" {
-  description = "List of instance types for the node group"
+variable "subnet_ids" {
+  description = "IDs of the subnets for EKS"
   type        = list(string)
-  default     = ["t3.medium"]
 }
 
-variable "desired_size" {
-  description = "Desired number of worker nodes"
-  type        = number
-  default     = 2
+
+variable "role_arn" {
+  description = "ARN du rôle IAM pour EKS"
+  type        = string
+  default     = "arn:aws:iam::744983671605:role/LabRole"  # Valeur par défaut
 }
 
-variable "max_size" {
-  description = "Maximum number of worker nodes"
-  type        = number
-  default     = 3
+variable "vpc_id" {
+  description = "L'ID du VPC pour le cluster EKS"
+  type        = string
+  default     = "vpc-04c984733bc5b455e"  # Remplacez par votre ID de VPC réel
 }
 
-variable "min_size" {
-  description = "Minimum number of worker nodes"
-  type        = number
-  default     = 1
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"  # Modifiez-le selon vos besoins
 }
+
