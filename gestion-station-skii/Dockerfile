@@ -1,13 +1,13 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:17-jdk-slim
-#modified
+# Use a reliable Java 17 image
+FROM eclipse-temurin:17-jdk
+
 # Set working directory inside container
 WORKDIR /app
 
 # Copy the built JAR file from target directory into the container
 COPY target/gestion-station-skii-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose your Spring Boot app port (change if different)
+# Expose your Spring Boot app port
 EXPOSE 8083
 
 # Run the JAR file
