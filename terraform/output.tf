@@ -9,23 +9,8 @@ output "cluster_name" {
 }
 
 output "cluster_role_arn" {
-  description = "L'ARN du rôle IAM du cluster EKS"
+  description = "L'ARN du rôle IAM du cluster EKS (LabRole utilisé pour cluster et nodes)"
   value       = aws_eks_cluster.my_cluster.role_arn
-}
-
-output "vpc_id" {
-  description = "L'ID du VPC créé"
-  value       = aws_vpc.my_vpc.id
-}
-
-output "subnet_ids" {
-  description = "Les IDs des subnets créés"
-  value       = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
-}
-
-output "node_role_arn" {
-  description = "L'ARN du rôle IAM des nodes EKS"
-  value       = aws_iam_role.eks_node_role.arn
 }
 
 output "cluster_security_group_id" {

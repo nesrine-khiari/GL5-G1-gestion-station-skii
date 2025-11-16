@@ -210,45 +210,7 @@ resource "aws_security_group_rule" "cluster_to_worker" {
   security_group_id        = aws_security_group.eks_cluster_sg.id
 }
 
-# IAM Role for Node Group
-resource "aws_iam_role" "eks_node_role" {
-  name = "eks-node-role-${var.cluster_name}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Name = "eks-node-role-${var.cluster_name}"
-  }
-}
-
-# Attach required policies for EKS nodes
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_node_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_node_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_container_registry_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_node_role.name
-}
-
-# EKS Cluster
+# EKS Cluster - Use LabRole
 resource "aws_eks_cluster" "my_cluster" {
   name     = var.cluster_name
   role_arn = var.role_arn
@@ -271,11 +233,11 @@ resource "aws_eks_cluster" "my_cluster" {
   }
 }
 
-# EKS Node Group
+# EKS Node Group - Also use LabRole (AWS Learner Lab limitation)
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
   node_group_name = "noeud1"
-  node_role_arn   = aws_iam_role.eks_node_role.arn
+  node_role_arn   = var.role_arn  # Use LabRole for nodes too
   subnet_ids      = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 
   scaling_config {
@@ -292,9 +254,6 @@ resource "aws_eks_node_group" "my_node_group" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.eks_worker_node_policy,
-    aws_iam_role_policy_attachment.eks_cni_policy,
-    aws_iam_role_policy_attachment.eks_container_registry_policy,
     aws_eks_cluster.my_cluster
   ]
 
