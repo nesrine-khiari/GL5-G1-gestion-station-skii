@@ -20,18 +20,39 @@ output "subnet_ids" {
 # ------------------------------
 # Security Groups
 # ------------------------------
-output "cluster_sg_id" {
-  description = "ID du Security Group du cluster EKS"
-  value       = aws_security_group.eks_cluster_sg.id
-}
-
 output "worker_sg_id" {
   description = "ID du Security Group des nœuds du cluster EKS"
   value       = aws_security_group.eks_worker_sg.id
 }
 
 # ------------------------------
-# Optionnel : cluster EKS existant
+# Node Group
+# ------------------------------
+output "node_group_id" {
+  description = "ID du groupe de nœuds EKS"
+  value       = aws_eks_node_group.worker_nodes.id
+}
+
+output "node_group_arn" {
+  description = "ARN du groupe de nœuds EKS"
+  value       = aws_eks_node_group.worker_nodes.arn
+}
+
+output "node_group_status" {
+  description = "Statut du groupe de nœuds EKS"
+  value       = aws_eks_node_group.worker_nodes.status
+}
+
+# ------------------------------
+# IAM Roles
+# ------------------------------
+output "node_group_role_arn" {
+  description = "ARN du rôle IAM pour le groupe de nœuds"
+  value       = aws_iam_role.eks_nodegroup_role.arn
+}
+
+# ------------------------------
+# Cluster EKS existant
 # ------------------------------
 data "aws_eks_cluster" "existing" {
   name = var.cluster_name
@@ -51,7 +72,12 @@ output "cluster_name" {
   value       = data.aws_eks_cluster.existing.name
 }
 
-output "cluster_role_arn" {
-  description = "ARN du rôle IAM du cluster EKS existant"
-  value       = data.aws_eks_cluster.existing.role_arn
+output "cluster_certificate_authority_data" {
+  description = "Certificate authority data du cluster EKS"
+  value       = data.aws_eks_cluster.existing.certificate_authority[0].data
+}
+
+output "cluster_version" {
+  description = "Version du cluster EKS"
+  value       = data.aws_eks_cluster.existing.version
 }
