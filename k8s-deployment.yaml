@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-station-ski
+  labels:
+    app: gestion-station-ski
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gestion-station-ski
+  template:
+    metadata:
+      labels:
+        app: gestion-station-ski
+    spec:
+      containers:
+        - name: gestion-station-ski
+          image: houcemhbiri/gestion-station-ski:latest
+          ports:
+            - containerPort: 8087
+              name: http
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          # livenessProbe:
+          #   httpGet:
+          #     path: /stationSki/actuator/health
+          #     port: 8087
+          #   initialDelaySeconds: 90
+          #   periodSeconds: 10
+          #   timeoutSeconds: 5
+          #   failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: /stationSki/actuator/health
+          #     port: 8087
+          #   initialDelaySeconds: 60
+          #   periodSeconds: 5
+          #   timeoutSeconds: 3
+          #   failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gestion-station-ski-service
+  labels:
+    app: gestion-station-ski
+spec:
+  type: LoadBalancer
+  selector:
+    app: gestion-station-ski
+  ports:
+    - protocol: TCP
+      port: 8087
+      targetPort: 8087
+      name: http
