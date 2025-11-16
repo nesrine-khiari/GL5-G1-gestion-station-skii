@@ -19,7 +19,7 @@ variable "subnet_ids" {
 variable "role_arn" {
   description = "ARN du rôle IAM pour EKS"
   type        = string
-  default     = "arn:aws:iam::744983671605:role/LabRole"  # Valeur par défaut
+  default     = "arn:aws:iam::775955735712:role/LabRole"  # Valeur par défaut
 }
 
 
@@ -28,4 +28,5 @@ variable "vpc_cidr" {
   type        = string
   default     = "10.0.0.0/16"  # Modifiez-le selon vos besoins
 }
+
 
