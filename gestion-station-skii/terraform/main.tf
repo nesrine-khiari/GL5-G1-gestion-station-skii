@@ -1,41 +1,10 @@
-variable "aws_region" {
-  description = "La région AWS"
-  type        = string
-  default     = "us-east-1"
-}
-
-variable "cluster_name" {
-  description = "Nom du cluster EKS"
-  type        = string
-  default     = "mykubernetes"
-}
-
-variable "role_arn" {
-  description = "ARN du rôle IAM pour EKS"
-  type        = string
-  default     = "arn:aws:iam::775955735712:role/LabRole"
-}
-
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
-  type        = list(string)
-  default     = ["10.0.1.0/24", "10.0.2.0/24"]
-}
-
-variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
-  type        = list(string)
-  default     = ["10.0.3.0/24", "10.0.4.0/24"]
-}
-
 provider "aws" {
   region = var.aws_region
+}
+
+# Data source pour les zones de disponibilité
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 # Création du VPC
@@ -74,7 +43,7 @@ resource "aws_subnet" "private_subnets" {
   }
 }
 
-# Internet Gateway pour le VPC
+# Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -83,7 +52,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# Table de routage publique
+# Route table publique
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -97,14 +66,13 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
-# Association des sous-réseaux publics avec la table de routage publique
 resource "aws_route_table_association" "public_rta" {
   count          = length(aws_subnet.public_subnets)
   subnet_id      = aws_subnet.public_subnets[count.index].id
   route_table_id = aws_route_table.public_rt.id
 }
 
-# Elastic IP pour le NAT Gateway
+# EIP pour NAT
 resource "aws_eip" "nat_eip" {
   domain = "vpc"
   tags = {
@@ -124,7 +92,7 @@ resource "aws_nat_gateway" "nat_gw" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-# Table de routage privée
+# Route table privée
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -138,14 +106,13 @@ resource "aws_route_table" "private_rt" {
   }
 }
 
-# Association des sous-réseaux privés avec la table de routage privée
 resource "aws_route_table_association" "private_rta" {
   count          = length(aws_subnet.private_subnets)
   subnet_id      = aws_subnet.private_subnets[count.index].id
   route_table_id = aws_route_table.private_rt.id
 }
 
-# Security Group pour le cluster EKS
+# SG du cluster
 resource "aws_security_group" "eks_cluster_sg" {
   name        = "eks-cluster-sg-${var.cluster_name}"
   description = "Security group for EKS cluster ${var.cluster_name}"
@@ -177,10 +144,10 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 }
 
-# Security Group pour les nœuds worker EKS
+# SG des nodes EKS
 resource "aws_security_group" "eks_worker_sg" {
   name        = "eks-worker-sg-${var.cluster_name}"
-  description = "Security group for EKS worker nodes ${var.cluster_name}"
+  description = "Security group for EKS worker nodes"
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
@@ -227,7 +194,7 @@ resource "aws_eks_cluster" "my_cluster" {
   ]
 }
 
-# Groupe de nœuds EKS
+# Node group
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
   node_group_name = "noeud1"
@@ -245,35 +212,4 @@ resource "aws_eks_node_group" "my_node_group" {
   depends_on = [
     aws_eks_cluster.my_cluster
   ]
-}
-
-# Data source pour les zones de disponibilité
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
-# Output pour récupérer les IDs des sous-réseaux
-output "vpc_id" {
-  description = "ID du VPC créé"
-  value       = aws_vpc.my_vpc.id
-}
-
-output "public_subnet_ids" {
-  description = "IDs des sous-réseaux publics"
-  value       = aws_subnet.public_subnets[*].id
-}
-
-output "private_subnet_ids" {
-  description = "IDs des sous-réseaux privés"
-  value       = aws_subnet.private_subnets[*].id
-}
-
-output "cluster_endpoint" {
-  description = "Endpoint du cluster EKS"
-  value       = aws_eks_cluster.my_cluster.endpoint
-}
-
-output "cluster_security_group_id" {
-  description = "Security Group ID du cluster EKS"
-  value       = aws_security_group.eks_cluster_sg.id
 }
