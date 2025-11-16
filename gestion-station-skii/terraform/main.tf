@@ -16,7 +16,10 @@ resource "aws_vpc" "my_vpc" {
   }
 }
 
+# ------------------------------
 # Internet Gateway
+# ------------------------------
+
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -25,7 +28,10 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
+# ------------------------------
 # Route Table
+# ------------------------------
+
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -132,44 +138,5 @@ resource "aws_security_group" "eks_worker_sg" {
 
   tags = {
     Name = "eks-worker-sg-${var.cluster_name}"
-  }
-}
-
-# ------------------------------
-# EKS Cluster
-# ------------------------------
-
-resource "aws_eks_cluster" "my_cluster" {
-  name     = var.cluster_name
-  role_arn = "arn:aws:iam::775955735712:role/LabEksClusterRole"  # <-- ton rôle existant
-  version  = "1.30"
-
-  vpc_config {
-    subnet_ids         = [
-      aws_subnet.subnet1.id,
-      aws_subnet.subnet2.id
-    ]
-    security_group_ids = [aws_security_group.eks_cluster_sg.id]
-  }
-}
-
-# ------------------------------
-# EKS Node Group
-# ------------------------------
-
-resource "aws_eks_node_group" "my_node_group" {
-  cluster_name    = aws_eks_cluster.my_cluster.name
-  node_group_name = "node-group-1"
-  node_role_arn   = "arn:aws:iam::775955735712:role/LabEksNodeRole"  # <-- ton rôle existant
-
-  subnet_ids = [
-    aws_subnet.subnet1.id,
-    aws_subnet.subnet2.id
-  ]
-
-  scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 1
   }
 }
