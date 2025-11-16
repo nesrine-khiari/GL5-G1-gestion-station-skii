@@ -2,14 +2,17 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Create VPC
 resource "aws_vpc" "my_vpc" {
-  cidr_block = var.vpc_cidr  # Utilisation de la variable pour le CIDR
+  cidr_block = var.vpc_cidr
+  tags = { Name = "${var.cluster_name}-vpc" }
 }
 
+# Security group for EKS cluster
 resource "aws_security_group" "eks_cluster_sg" {
   name        = "eks-cluster-sg-${var.cluster_name}"
   description = "Security group for EKS cluster ${var.cluster_name}"
-  vpc_id      = var.vpc_id  # Utilisation de la variable pour l'ID du VPC
+  vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
     from_port   = 8083
@@ -32,15 +35,14 @@ resource "aws_security_group" "eks_cluster_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "eks-cluster-sg-${var.cluster_name}"
-  }
+  tags = { Name = "eks-cluster-sg-${var.cluster_name}" }
 }
 
+# Security group for worker nodes
 resource "aws_security_group" "eks_worker_sg" {
   name        = "eks-worker-sg-${var.cluster_name}"
   description = "Security group for EKS worker nodes ${var.cluster_name}"
-  vpc_id      = var.vpc_id  # Utilisation de la variable pour l'ID du VPC
+  vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
     from_port   = 8083
@@ -63,11 +65,10 @@ resource "aws_security_group" "eks_worker_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "eks-worker-sg-${var.cluster_name}"
-  }
+  tags = { Name = "eks-worker-sg-${var.cluster_name}" }
 }
 
+# EKS Cluster
 resource "aws_eks_cluster" "my_cluster" {
   name     = var.cluster_name
   role_arn = var.role_arn
@@ -79,6 +80,7 @@ resource "aws_eks_cluster" "my_cluster" {
   }
 }
 
+# EKS Node Group
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
   node_group_name = "noeud1"
