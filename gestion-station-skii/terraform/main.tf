@@ -7,8 +7,8 @@ provider "aws" {
 # ------------------------------
 
 resource "aws_vpc" "my_vpc" {
-  cidr_block = var.vpc_cidr
-  enable_dns_support = true
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
@@ -39,7 +39,10 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
-# Subnet 1
+# ------------------------------
+# Subnets
+# ------------------------------
+
 resource "aws_subnet" "subnet1" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -51,7 +54,6 @@ resource "aws_subnet" "subnet1" {
   }
 }
 
-# Subnet 2
 resource "aws_subnet" "subnet2" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.2.0/24"
@@ -63,7 +65,7 @@ resource "aws_subnet" "subnet2" {
   }
 }
 
-# Associer route table aux subnets
+# Associate route table
 resource "aws_route_table_association" "rta1" {
   subnet_id      = aws_subnet.subnet1.id
   route_table_id = aws_route_table.public_rt.id
@@ -78,10 +80,9 @@ resource "aws_route_table_association" "rta2" {
 # Security Groups
 # ------------------------------
 
-# Security group for EKS cluster
 resource "aws_security_group" "eks_cluster_sg" {
   name        = "eks-cluster-sg-${var.cluster_name}"
-  description = "Security group for EKS cluster ${var.cluster_name}"
+  description = "Security group for EKS cluster"
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
@@ -103,10 +104,9 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 }
 
-# Worker nodes SG
 resource "aws_security_group" "eks_worker_sg" {
   name        = "eks-worker-sg-${var.cluster_name}"
-  description = "Security group for EKS worker nodes ${var.cluster_name}"
+  description = "Security group for EKS worker nodes"
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
@@ -117,10 +117,10 @@ resource "aws_security_group" "eks_worker_sg" {
   }
 
   ingress {
-    from_port       = 0
-    to_port         = 65535
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -141,24 +141,16 @@ resource "aws_security_group" "eks_worker_sg" {
 
 resource "aws_eks_cluster" "my_cluster" {
   name     = var.cluster_name
-  role_arn = var.role_arn
+  role_arn = "arn:aws:iam::775955735712:role/LabEksClusterRole"  # <-- ton rôle existant
   version  = "1.30"
 
   vpc_config {
-    subnet_ids = [
+    subnet_ids         = [
       aws_subnet.subnet1.id,
       aws_subnet.subnet2.id
     ]
-
-    security_group_ids = [
-      aws_security_group.eks_cluster_sg.id
-    ]
+    security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_cluster_policy,
-    aws_iam_role_policy_attachment.eks_vpc_resource_controller
-  ]
 }
 
 # ------------------------------
@@ -168,7 +160,7 @@ resource "aws_eks_cluster" "my_cluster" {
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.my_cluster.name
   node_group_name = "node-group-1"
-  node_role_arn   = var.role_arn
+  node_role_arn   = "arn:aws:iam::775955735712:role/LabEksNodeRole"  # <-- ton rôle existant
 
   subnet_ids = [
     aws_subnet.subnet1.id,
@@ -180,22 +172,4 @@ resource "aws_eks_node_group" "my_node_group" {
     max_size     = 3
     min_size     = 1
   }
-
-  depends_on = [
-    aws_eks_cluster.my_cluster
-  ]
-}
-
-# ------------------------------
-# IAM Attachments (required for EKS)
-# ------------------------------
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  role       = "LabRole"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
-  role       = "LabRole"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
