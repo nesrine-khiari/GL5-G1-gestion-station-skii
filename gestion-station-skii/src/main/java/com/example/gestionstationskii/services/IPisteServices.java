@@ -7,6 +7,7 @@ public interface IPisteServices {
     List<Piste> retrieveAllPistes();
 
     Piste  addPiste(Piste  piste);
+    Piste updatePiste(Piste piste);
 
     void removePiste (Long numPiste);
 
