@@ -1,0 +1,24 @@
+services:
+  mysqldb:
+    container_name: mysqldb
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tpachat    # crée la base automatiquement
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  spring_app:
+    build: .
+    container_name: projectcontainer
+    restart: on-failure
+    ports:
+      - "8087:8087"
+    depends_on:
+      - mysqldb
+
+volumes:
+  mysql_data:
