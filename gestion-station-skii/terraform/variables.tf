@@ -13,7 +13,7 @@ variable "cluster_name" {
 variable "role_arn" {
   description = "ARN du rôle IAM pour EKS"
   type        = string
-  default     = "arn:aws:iam::775955735712:role/LabRole"
+  default     = "arn:aws:iam::405671371260:role/LabRole"
 }
 
 variable "vpc_cidr" {
