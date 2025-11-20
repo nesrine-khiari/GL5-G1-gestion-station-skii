@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: my-spring-boot-app
-        image: nesrinekhiari01/webhimage:latest  # Assurez-vous que le nom est correct
+        image: salimbrahem/docker-spring-boot:latest
         ports:
         - containerPort: 8083  # Utilisez le port sur lequel votre application écoute
