@@ -1,26 +1,14 @@
-FROM jenkins/jenkins:lts
+# Use a lightweight Java 17 image
+FROM openjdk:17.0.2-jdk-slim
 
-USER root
+# Set working directory
+WORKDIR /app
 
-# Add Debian 12 (Bookworm) sources (optional if needed)
-RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" \
-    > /etc/apt/sources.list.d/bookworm.list
+# Copy the built Spring Boot jar (update the name if different)
+COPY target/gestion-station-skii-0.0.1-SNAPSHOT.jar app.jar
 
-# Install Java 17, Maven, Git, Docker CLI, and required packages
-RUN apt-get update && apt-get install -y \
-    openjdk-17-jdk \
-    maven \
-    git \
-    docker.io \
-    sudo \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Expose the port your app runs on
+EXPOSE 8087
 
-# Add Jenkins user to the docker group
-RUN usermod -aG docker jenkins
-
-# Optional: allow sudo without password for Jenkins user
-RUN echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Switch back to Jenkins user
-USER jenkins
+# Run the Spring Boot app
+ENTRYPOINT ["java", "-jar", "app.jar"]
