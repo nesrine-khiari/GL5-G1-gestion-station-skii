@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: ski-station-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ski-station
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8087

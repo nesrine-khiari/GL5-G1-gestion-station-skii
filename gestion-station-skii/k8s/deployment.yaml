@@ -1,0 +1,21 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ski-station-deployment
+  labels:
+    app: ski-station
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ski-station
+  template:
+    metadata:
+      labels:
+        app: ski-station
+    spec:
+      containers:
+        - name: ski-station-container
+          image: maryem5/ski-station:latest
+          ports:
+            - containerPort: 8087
