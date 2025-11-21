@@ -1,7 +1,5 @@
-global:
-  scrape_interval: 15s
-
 scrape_configs:
   - job_name: 'springboot-app-lb'
+    metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['a4c11ed3580cc43a6bf1307280c92032-1616169045.us-east-1.elb.amazonaws.com:8083']
+      - targets: ['abccb4a4c2f354dd5817c596ecf5b6b1-1125471686.us-east-1.elb.amazonaws.com:8083']
