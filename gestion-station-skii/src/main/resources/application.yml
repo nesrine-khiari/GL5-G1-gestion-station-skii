@@ -1,0 +1,7 @@
+server:
+  port: 8087
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: ski-station-app
