@@ -46,5 +46,9 @@ public class SubscriptionRestController {
                                                       @PathVariable("date2") LocalDate endDate){
         return subscriptionServices.retrieveSubscriptionsByDates(startDate, endDate);
     }
+    @GetMapping
+    public String rootSubscription() {
+        return "Subscription API is running!";
+    }
 
 }
