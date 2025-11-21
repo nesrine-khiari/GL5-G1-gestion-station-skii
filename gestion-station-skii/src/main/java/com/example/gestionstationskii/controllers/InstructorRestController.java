@@ -39,11 +39,15 @@ public class InstructorRestController {
     public Instructor updateInstructor(@RequestBody Instructor Instructor){
         return  instructorServices.updateInstructor(Instructor);
     }
+    
 
     @Operation(description = "Retrieve Instructor by Id")
     @GetMapping("/get/{id-instructor}")
     public Instructor getById(@PathVariable("id-instructor") Long numInstructor){
         return instructorServices.retrieveInstructor(numInstructor);
     }
-
+    @GetMapping
+    public String rootSubscription() {
+        return "Subscription API is running!";
+    }
 }
