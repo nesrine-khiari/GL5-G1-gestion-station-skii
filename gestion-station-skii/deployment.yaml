@@ -17,5 +17,6 @@ spec:
       containers:
       - name: my-spring-boot-app
         image: nounouette/project:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8083  # Utilisez le port sur lequel votre application écoute
