@@ -15,7 +15,9 @@ spec:
         app: my-spring-boot-app
     spec:
       containers:
-      - name: my-spring-boot-app
-        image: nesrinekhiari01/webhimage:latest  # Assurez-vous que le nom est correct
-        ports:
-        - containerPort: 8083  # Utilisez le port sur lequel votre application écoute
+        - name: my-spring-boot-app
+          image: nesrinekhiari01/webhimage:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+
