@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'springboot-app-lb'
+    static_configs:
+      - targets: ['a4c11ed3580cc43a6bf1307280c92032-1616169045.us-east-1.elb.amazonaws.com:8083']
