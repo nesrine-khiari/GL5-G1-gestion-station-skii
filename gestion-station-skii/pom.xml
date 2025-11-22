@@ -14,7 +14,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>gestion-station-skii</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>gestion-station-skii</name>
 
     <properties>
@@ -33,7 +33,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
 
 
         <!-- Database -->
