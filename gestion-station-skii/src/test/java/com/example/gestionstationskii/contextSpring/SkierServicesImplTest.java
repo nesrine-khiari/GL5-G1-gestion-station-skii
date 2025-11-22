@@ -3,7 +3,6 @@ package com.example.gestionstationskii.contextSpring;
 import com.example.gestionstationskii.entities.*;
 import com.example.gestionstationskii.repositories.*;
 import com.example.gestionstationskii.services.SkierServicesImpl;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(SkierServicesImpl.class) // on importe le vrai service, pas un mock
+@Import(SkierServicesImpl.class)
 class SkierServicesImplTest {
 
     @Autowired
@@ -36,7 +35,6 @@ class SkierServicesImplTest {
 
     @BeforeEach
     void setUp() {
-        // Créer un skieur avant chaque test
         skier = new Skier();
         skier.setFirstName("Houcem");
         skier.setLastName("Hbiri");
@@ -49,34 +47,34 @@ class SkierServicesImplTest {
         subscription.setStartDate(LocalDate.now());
         subscription.setTypeSub(TypeSubscription.MONTHLY);
 
-        skier.setSubscription(subscription);
+        subscriptionRepository.save(subscription);
 
-        Skier saved = skierServices.addSkier(skier);
+        SkierDTO dto = new SkierDTO();
+        dto.setFirstName(skier.getFirstName());
+        dto.setLastName(skier.getLastName());
+        dto.setCity(skier.getCity());
+        dto.setSubscriptionId(subscription.getNumSub());
+
+        SkierDTO saved = skierServices.addSkier(dto);
 
         assertNotNull(saved.getNumSkier());
-        assertNotNull(saved.getSubscription());
-        assertEquals(saved.getSubscription().getEndDate(),
-                subscription.getStartDate().plusMonths(1));
+        assertEquals(subscription.getNumSub(), saved.getSubscriptionId());
         assertEquals(1, skierRepository.findAll().size());
     }
 
     @Test
     void testAssignSkierToSubscription() {
-        // créer et sauvegarder un abonnement
         Subscription subscription = new Subscription();
         subscription.setStartDate(LocalDate.now());
         subscription.setTypeSub(TypeSubscription.ANNUAL);
         subscriptionRepository.save(subscription);
 
-        // enregistrer le skieur
         Skier savedSkier = skierRepository.save(skier);
 
-        // exécuter le service
-        skierServices.assignSkierToSubscription(savedSkier.getNumSkier(), subscription.getNumSub());
+        SkierDTO updated = skierServices.assignSkierToSubscription(savedSkier.getNumSkier(), subscription.getNumSub());
 
-        Skier updated = skierRepository.findById(savedSkier.getNumSkier()).orElse(null);
         assertNotNull(updated);
-        assertEquals(subscription.getNumSub(), updated.getSubscription().getNumSub());
+        assertEquals(subscription.getNumSub(), updated.getSubscriptionId());
     }
 
     @Test
@@ -87,12 +85,13 @@ class SkierServicesImplTest {
 
         Skier savedSkier = skierRepository.save(skier);
 
-        skierServices.assignSkierToPiste(savedSkier.getNumSkier(), piste.getNumPiste());
+        SkierDTO updated = skierServices.assignSkierToPiste(savedSkier.getNumSkier(), piste.getNumPiste());
 
-        Skier updated = skierRepository.findById(savedSkier.getNumSkier()).orElse(null);
         assertNotNull(updated);
-        assertNotNull(updated.getPistes());
-        assertEquals(1, updated.getPistes().size());
+        Skier skierEntity = skierRepository.findById(savedSkier.getNumSkier()).orElse(null);
+        assertNotNull(skierEntity);
+        assertNotNull(skierEntity.getPistes());
+        assertEquals(1, skierEntity.getPistes().size());
     }
 
     @Test
@@ -114,8 +113,9 @@ class SkierServicesImplTest {
         skier.setSubscription(sub1);
         skierRepository.save(skier);
 
-        List<Skier> result = skierServices.retrieveSkiersBySubscriptionType(TypeSubscription.SEMESTRIEL);
+        List<SkierDTO> result = skierServices.retrieveSkiersBySubscriptionType(TypeSubscription.SEMESTRIEL);
         assertEquals(1, result.size());
         assertEquals("Houcem", result.get(0).getFirstName());
+        assertEquals(sub1.getNumSub(), result.get(0).getSubscriptionId());
     }
 }

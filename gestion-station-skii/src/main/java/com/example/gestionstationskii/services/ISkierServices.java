@@ -1,26 +1,25 @@
 package com.example.gestionstationskii.services;
 
-import com.example.gestionstationskii.entities.*;
+import com.example.gestionstationskii.entities.SkierDTO;
+import com.example.gestionstationskii.entities.TypeSubscription;
 
 import java.util.List;
 
 public interface ISkierServices {
 
-	List<Skier> retrieveAllSkiers();
+	List<SkierDTO> retrieveAllSkiers();
 
-	Skier  addSkier(Skier  skier);
+	SkierDTO addSkier(SkierDTO dto);
 
-	Skier assignSkierToSubscription(Long numSkier, Long numSubscription);
+	SkierDTO assignSkierToSubscription(Long numSkier, Long numSubscription);
 
-	Skier addSkierAndAssignToCourse(Skier skier, Long numCourse);
+	SkierDTO addSkierAndAssignToCourse(SkierDTO dto, Long numCourse);
 
-	void removeSkier (Long numSkier);
+	void removeSkier(Long numSkier);
 
-	Skier retrieveSkier (Long numSkier);
+	SkierDTO retrieveSkier(Long numSkier);
 
+	SkierDTO assignSkierToPiste(Long numSkieur, Long numPiste);
 
-	Skier assignSkierToPiste(Long numSkieur, Long numPiste);
-
-	List<Skier> retrieveSkiersBySubscriptionType(TypeSubscription typeSubscription);
-
+	List<SkierDTO> retrieveSkiersBySubscriptionType(TypeSubscription typeSubscription);
 }

@@ -3,12 +3,13 @@ package com.example.gestionstationskii.mockito;
 import com.example.gestionstationskii.entities.*;
 import com.example.gestionstationskii.repositories.*;
 import com.example.gestionstationskii.services.SkierServicesImpl;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -44,6 +45,8 @@ class SkierServicesImplMockTest {
         skier = new Skier();
         skier.setNumSkier(1L);
         skier.setFirstName("John");
+        skier.setLastName("Doe");
+        skier.setCity("Sfax");
         skier.setSubscription(subscription);
     }
 
@@ -51,9 +54,10 @@ class SkierServicesImplMockTest {
     void testRetrieveAllSkiers() {
         when(skierRepository.findAll()).thenReturn(List.of(skier));
 
-        List<Skier> result = skierServices.retrieveAllSkiers();
+        List<SkierDTO> result = skierServices.retrieveAllSkiers();
 
         assertEquals(1, result.size());
+        assertEquals("John", result.get(0).getFirstName());
         verify(skierRepository, times(1)).findAll();
     }
 
@@ -61,14 +65,17 @@ class SkierServicesImplMockTest {
     void testAddSkierWithSubscription() {
         when(skierRepository.save(any(Skier.class))).thenReturn(skier);
 
-        Skier saved = skierServices.addSkier(skier);
+        SkierDTO dto = new SkierDTO();
+        dto.setFirstName(skier.getFirstName());
+        dto.setLastName(skier.getLastName());
+        dto.setCity(skier.getCity());
+        dto.setSubscriptionId(subscription.getNumSub());
+
+        SkierDTO saved = skierServices.addSkier(dto);
 
         assertNotNull(saved);
-        assertNotNull(saved.getSubscription().getEndDate());
-        assertEquals(saved.getSubscription().getEndDate(),
-                saved.getSubscription().getStartDate().plusYears(1));
-
-        verify(skierRepository, times(1)).save(skier);
+        assertEquals(subscription.getNumSub(), saved.getSubscriptionId());
+        verify(skierRepository, times(1)).save(any(Skier.class));
     }
 
     @Test
@@ -77,11 +84,11 @@ class SkierServicesImplMockTest {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
         when(skierRepository.save(any(Skier.class))).thenReturn(skier);
 
-        Skier result = skierServices.assignSkierToSubscription(1L, 1L);
+        SkierDTO result = skierServices.assignSkierToSubscription(1L, 1L);
 
         assertNotNull(result);
-        assertEquals(subscription, result.getSubscription());
-        verify(skierRepository).save(skier);
+        assertEquals(subscription.getNumSub(), result.getSubscriptionId());
+        verify(skierRepository).save(any(Skier.class));
     }
 
     @Test
@@ -93,10 +100,10 @@ class SkierServicesImplMockTest {
         when(pisteRepository.findById(1L)).thenReturn(Optional.of(piste));
         when(skierRepository.save(any(Skier.class))).thenReturn(skier);
 
-        Skier result = skierServices.assignSkierToPiste(1L, 1L);
+        SkierDTO result = skierServices.assignSkierToPiste(1L, 1L);
 
         assertNotNull(result);
-        verify(skierRepository, times(1)).save(skier);
+        verify(skierRepository, times(1)).save(any(Skier.class));
     }
 
     @Test
@@ -104,9 +111,11 @@ class SkierServicesImplMockTest {
         when(skierRepository.findBySubscription_TypeSub(TypeSubscription.ANNUAL))
                 .thenReturn(List.of(skier));
 
-        List<Skier> result = skierServices.retrieveSkiersBySubscriptionType(TypeSubscription.ANNUAL);
+        List<SkierDTO> result = skierServices.retrieveSkiersBySubscriptionType(TypeSubscription.ANNUAL);
 
         assertEquals(1, result.size());
+        assertEquals("John", result.get(0).getFirstName());
+        assertEquals(subscription.getNumSub(), result.get(0).getSubscriptionId());
         verify(skierRepository).findBySubscription_TypeSub(TypeSubscription.ANNUAL);
     }
 }

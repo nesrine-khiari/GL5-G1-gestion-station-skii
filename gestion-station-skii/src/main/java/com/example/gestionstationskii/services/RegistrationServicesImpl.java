@@ -12,15 +12,15 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+
 @Slf4j
 @AllArgsConstructor
 @Service
-public class RegistrationServicesImpl implements  IRegistrationServices{
+public class RegistrationServicesImpl implements IRegistrationServices {
 
     private IRegistrationRepository registrationRepository;
     private ISkierRepository skierRepository;
     private ICourseRepository courseRepository;
-
 
     @Override
     public Registration addRegistrationAndAssignToSkier(Registration registration, Long numSkier) {
@@ -39,7 +39,8 @@ public class RegistrationServicesImpl implements  IRegistrationServices{
 
     @Transactional
     @Override
-    public Registration addRegistrationAndAssignToSkierAndCourse(Registration registration, Long numSkieur, Long numCours) {
+    public Registration addRegistrationAndAssignToSkierAndCourse(Registration registration, Long numSkieur,
+            Long numCours) {
         Skier skier = skierRepository.findById(numSkieur).orElse(null);
         Course course = courseRepository.findById(numCours).orElse(null);
 
@@ -47,7 +48,8 @@ public class RegistrationServicesImpl implements  IRegistrationServices{
             return null;
         }
 
-        if(registrationRepository.countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse(registration.getNumWeek(), skier.getNumSkier(), course.getNumCourse()) >=1){
+        if (registrationRepository.countDistinctByNumWeekAndSkier_NumSkierAndCourse_NumCourse(registration.getNumWeek(),
+                skier.getNumSkier(), course.getNumCourse()) >= 1) {
             log.info("Sorry, you're already register to this course of the week :" + registration.getNumWeek());
             return null;
         }
@@ -70,9 +72,9 @@ public class RegistrationServicesImpl implements  IRegistrationServices{
                         log.info("Full Course ! Please choose another week to register !");
                         return null;
                     }
-                }
-                else{
-                    log.info("Sorry, your age doesn't allow you to register for this course ! \n Try to Register to a Collective Adult Course...");
+                } else {
+                    log.info(
+                            "Sorry, your age doesn't allow you to register for this course ! \n Try to Register to a Collective Adult Course...");
                 }
                 break;
 
@@ -87,12 +89,14 @@ public class RegistrationServicesImpl implements  IRegistrationServices{
                         return null;
                     }
                 }
-                log.info("Sorry, your age doesn't allow you to register for this course ! \n Try to Register to a Collective Child Course...");
+                log.info(
+                        "Sorry, your age doesn't allow you to register for this course ! \n Try to Register to a Collective Child Course...");
         }
         return registration;
 
     }
-    private Registration assignRegistration (Registration registration, Skier skier, Course course){
+
+    private Registration assignRegistration(Registration registration, Skier skier, Course course) {
         registration.setSkier(skier);
         registration.setCourse(course);
         return registrationRepository.save(registration);
